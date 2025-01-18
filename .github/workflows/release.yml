@@ -2,7 +2,7 @@
 name: Release Artifacts
 on:
   release:
-    types: [created]
+    types: [published]
 
 permissions:
   contents: write
@@ -50,21 +50,3 @@ jobs:
           asset_path: build/${{ matrix.os }}_${{ matrix.arch }}/nomad-device-cdrom_${{ env.VERSION }}_${{ matrix.os }}_${{ matrix.arch }}.zip
           asset_name: nomad-device-cdrom_${{ env.VERSION }}_${{ matrix.os }}_${{ matrix.arch }}.zip
           asset_content_type: application/zip
-
-  release:
-    name: Publish completed release
-    runs-on: ubuntu-latest
-    needs: [build]
-
-    steps:
-      - name: Publish release after uploading artifacts
-        uses: eregon/publish-release@v1
-
-        ## - Only try to publish DRAFT releases
-        ## - Disable publish step for local workflow executions using act
-        if: ${{ github.event.release.draft && github.event.release.tag_name != 'act-build' }}
-
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          release_id: ${{ github.event.release.id }}
