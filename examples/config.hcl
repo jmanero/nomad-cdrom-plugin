@@ -1,7 +1,7 @@
 // Example configuration snippet
 plugin "cdrom" {
   config {
-    fingerprint_interval = "1m"
+    fingerprint_interval = "5m"
     cdrom_info_path      = "/proc/sys/dev/cdrom/info"
 
     // Create a generic/cdrom/readonly device-group with 4 devices for each
