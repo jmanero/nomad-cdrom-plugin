@@ -4,7 +4,7 @@ on: push
 
 jobs:
   build:
-    name: Run tests on
+    name: Run golang tests
     runs-on: ubuntu-latest
 
     container:
