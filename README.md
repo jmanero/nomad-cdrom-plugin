@@ -5,7 +5,7 @@ Nomad CDROM Plugin
 
 ## Install
 
-1. Download an appropriate artifact from [Releases](./releases) for the target platform
+1. Download an appropriate artifact from [Releases](https://github.com/jmanero/nomad-cdrom-plugin/releases/latest) for the target platform
 2. Unzip and move the plugin to the configured Nomad `plugin_dir`
 
     ```
