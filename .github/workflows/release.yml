@@ -1,0 +1,70 @@
+---
+name: Release Artifacts
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build and upload to new release
+    runs-on: ubuntu-latest
+
+    env:
+      VERSION: ${{ github.event.release.tag_name }}
+
+    strategy:
+      matrix:
+        os: [linux]
+        arch: [amd64, arm64]
+
+    container:
+      image: golang:alpine
+      env:
+        GOOS: ${{ matrix.os }}
+        GOARCH: ${{ matrix.arch }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: apk add make nodejs zip
+
+      - name: Build and package plugins
+        run: make package
+
+      - name: Upload to release "${{ github.event.release.name }}" (${{ github.event.release.tag_name }})
+        uses: actions/upload-release-asset@v1
+
+        ## Disable upload step for local workflow executions using act
+        if: ${{ github.event.release.tag_name != 'act-build' }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: build/${{ matrix.os }}_${{ matrix.arch }}/nomad-device-cdrom_${{ env.VERSION }}_${{ matrix.os }}_${{ matrix.arch }}.zip
+          asset_name: nomad-device-cdrom_${{ env.VERSION }}_${{ matrix.os }}_${{ matrix.arch }}.zip
+          asset_content_type: application/zip
+
+  release:
+    name: Publish completed release
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: Publish release after uploading artifacts
+        uses: eregon/publish-release@v1
+
+        ## - Only try to publish DRAFT releases
+        ## - Disable publish step for local workflow executions using act
+        if: ${{ github.event.release.draft && github.event.release.tag_name != 'act-build' }}
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ github.event.release.id }}

@@ -1,13 +1,39 @@
 # Makefile
+VERSION ?= local
+
+GOOS   ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
+export GOOS GOARCH
+
 default: build
 
 .PHONY: clean
-clean: ## Remove build artifacts
+clean:
 	rm -rf build
 
-.PHONY: build
-build: build/nomad-cdrom-plugin
+.PHONY: test
+test:
+	go test -v ./cdrom
 
-build/nomad-cdrom-plugin:
+.PHONY: build
+build: build/$(GOOS)_$(GOARCH)/nomad-device-cdrom
+
+.PHONY: package
+package: build/$(GOOS)_$(GOARCH)/nomad-device-cdrom_$(VERSION)_$(GOOS)_$(GOARCH).zip
+
+## Run GitHub workflows locally
+.PHONY: workflows
+workflows:
+	act --bind --container-daemon-socket - push
+	act --bind --container-daemon-socket - --eventpath ./test/act-release-event.json release
+
+build/$(GOOS)_$(GOARCH)/LICENSE:
 	mkdir -p $(@D)
-	go build -o build/nomad-cdrom-plugin .
+	cp LICENSE $@
+
+build/$(GOOS)_$(GOARCH)/nomad-device-cdrom:
+	mkdir -p $(@D)
+	go build -v -ldflags "-X main.Version=$(VERSION)" -o $@ .
+
+build/$(GOOS)_$(GOARCH)/nomad-device-cdrom_$(VERSION)_$(GOOS)_$(GOARCH).zip: build/$(GOOS)_$(GOARCH)/LICENSE build/$(GOOS)_$(GOARCH)/nomad-device-cdrom
+	cd $(@D); zip $(@F) nomad-device-cdrom LICENSE
