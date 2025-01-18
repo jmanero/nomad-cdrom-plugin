@@ -1,11 +1,11 @@
 Nomad CDROM Plugin
 ==================
 
-Fingerprint optical drives listed in `/proc/sys/dev/cdrom/info`
+[Nomad Device Plugin](https://developer.hashicorp.com/nomad/docs/devices) to fingerprint optical drives listed in `/proc/sys/dev/cdrom/info`
 
 ## Install
 
-1. Download an appropriate artifact from (Releases)[./releases] for the target platform
+1. Download an appropriate artifact from [Releases](./releases) for the target platform
 2. Unzip and move the plugin to the configured Nomad `plugin_dir`
 
     ```
