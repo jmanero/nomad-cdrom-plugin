@@ -1,10 +1,10 @@
-package device_test
+package cdrom_test
 
 import (
 	"os"
 	"testing"
 
-	"github.com/jmanero/nomad-cdrom-plugin/device"
+	"github.com/jmanero/nomad-cdrom-plugin/cdrom"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,13 +16,13 @@ func TestParseInfo_MultipleColumns(t *testing.T) {
 
 	defer info.Close()
 
-	devices, fingerprint, err := device.LoadTable(info)
+	devices, fingerprint, err := cdrom.LoadTable(info)
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
 
 	assert.Equal(t, "83f6e601f6255ce7", fingerprint)
-	assert.ElementsMatch(t, []device.Column{
+	assert.ElementsMatch(t, []cdrom.Column{
 		{
 			ID:              "sr0",
 			Speed:           0,
@@ -55,13 +55,13 @@ func TestParseInfo_Properties(t *testing.T) {
 
 	defer info.Close()
 
-	devices, fingerprint, err := device.LoadTable(info)
+	devices, fingerprint, err := cdrom.LoadTable(info)
 	if !assert.NoError(t, err) {
 		t.FailNow()
 	}
 
 	assert.Equal(t, "7a179ef5c41fe8ea", fingerprint)
-	assert.ElementsMatch(t, devices, []device.Column{
+	assert.ElementsMatch(t, devices, []cdrom.Column{
 		{
 			ID:              "sr0",
 			Speed:           48,

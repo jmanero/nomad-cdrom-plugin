@@ -1,8 +1,9 @@
-package device
+package cdrom
 
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -17,14 +18,6 @@ import (
 )
 
 var (
-	// PluginInfo provides information used by Nomad to identify the plugin
-	PluginInfo = &base.PluginInfoResponse{
-		Type:              base.PluginTypeDevice,
-		PluginApiVersions: []string{device.ApiVersion010},
-		PluginVersion:     "v0.0.1",
-		Name:              "cdrom",
-	}
-
 	// ConfigSpec is the specification of the schema for this plugin's config.
 	// this is used to validate the HCL for the plugin provided
 	// as part of the client config:
@@ -34,7 +27,7 @@ var (
 	ConfigSpec = hclspec.NewObject(map[string]*hclspec.Spec{
 		"fingerprint_interval": hclspec.NewDefault(
 			hclspec.NewAttr("fingerprint_interval", "string", false),
-			hclspec.NewLiteral("\"1m\""),
+			hclspec.NewLiteral("\"5m\""),
 		),
 		"cdrom_info_path": hclspec.NewDefault(
 			hclspec.NewAttr("cdrom_info_path", "string", false),
@@ -70,6 +63,7 @@ type Plugin struct {
 	InfoPath            string
 	ReadonlySeats       uint8
 
+	info  *base.PluginInfoResponse
 	state string
 	cache map[string]Device
 	mu    sync.RWMutex
@@ -79,9 +73,10 @@ type Plugin struct {
 //
 // Plugin configuration isn't available yet, so there will typically be
 // a limit to the initialization that can be performed at this point.
-func NewPlugin(log log.Logger) *Plugin {
+func NewPlugin(log log.Logger, info *base.PluginInfoResponse) *Plugin {
 	return &Plugin{
 		Logger: log.Named("cdrom"),
+		info:   info,
 		cache:  make(map[string]Device),
 	}
 }
@@ -90,8 +85,8 @@ func NewPlugin(log log.Logger) *Plugin {
 //
 // This is called during Nomad client startup, while discovering and loading
 // plugins.
-func (*Plugin) PluginInfo() (*base.PluginInfoResponse, error) {
-	return PluginInfo, nil
+func (plugin *Plugin) PluginInfo() (*base.PluginInfoResponse, error) {
+	return plugin.info, nil
 }
 
 // ConfigSchema returns the configuration schema for the plugin.
@@ -119,8 +114,17 @@ func (plugin *Plugin) SetConfig(c *base.Config) error {
 
 	plugin.FingerprintInterval = interval
 
-	// TODO: Validate that info-path exists and is readable
+	_, err = os.Stat(config.InfoPath)
+	if err != nil {
+		return fmt.Errorf("unable to read cdrom_info_path at %q: %w", config.FingerprintInterval, err)
+	}
+
 	plugin.InfoPath = config.InfoPath
+
+	if config.ReadonlySeats == 0 {
+		plugin.Warn("no readonly devices will be allocated")
+	}
+
 	plugin.ReadonlySeats = config.ReadonlySeats
 
 	plugin.Info("plugin configured", "fingerprint_interval", interval, "cdrom_info_path", config.InfoPath, "readonly_seats", config.ReadonlySeats)
