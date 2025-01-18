@@ -3,16 +3,24 @@ package main
 import (
 	log "github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/nomad/plugins"
+	"github.com/hashicorp/nomad/plugins/base"
+	"github.com/hashicorp/nomad/plugins/device"
 
-	"github.com/jmanero/nomad-cdrom-plugin/device"
+	"github.com/jmanero/nomad-cdrom-plugin/cdrom"
 )
 
+// Version build-time constant
+var Version = "undefined"
+
 func main() {
-	// Serve the plugin
 	plugins.Serve(factory)
 }
 
-// factory returns a new instance of our example device plugin
 func factory(log log.Logger) interface{} {
-	return device.NewPlugin(log)
+	return cdrom.NewPlugin(log, &base.PluginInfoResponse{
+		Type:              base.PluginTypeDevice,
+		PluginApiVersions: []string{device.ApiVersion010},
+		PluginVersion:     Version,
+		Name:              "cdrom",
+	})
 }
