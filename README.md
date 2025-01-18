@@ -5,8 +5,8 @@ Fingerprint optical drives listed in `/proc/sys/dev/cdrom/info`
 
 ## Install
 
-- Download an appropriate artifact from (Releases)[./releases] for the target platform
-- Unzip and move the plugin to the configured Nomad `plugin_dir`
+1. Download an appropriate artifact from (Releases)[./releases] for the target platform
+2. Unzip and move the plugin to the configured Nomad `plugin_dir`
 
     ```
     $ unzip nomad-device-cdrom_0.0.1_linux_amd64.zip
@@ -18,7 +18,7 @@ Fingerprint optical drives listed in `/proc/sys/dev/cdrom/info`
     $ sudo mv nomad-device-cdrom /usr/local/libexec/nomad/cdrom
     ```
 
-- Configure plugin and restart Nomad client
+3. Configure plugin and restart Nomad client
 
 ## Plugin Configuration
 
