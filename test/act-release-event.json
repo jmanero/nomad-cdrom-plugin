@@ -1,6 +1,6 @@
 {
   "release": {
     "name": "Local test build using act",
-    "tag_name": "act-build"
+    "tag_name": "0.0.0-act.0"
   }
 }

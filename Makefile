@@ -1,5 +1,5 @@
 # Makefile
-VERSION ?= local
+VERSION ?= 0.0.0-local.0
 
 GOOS   ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)

@@ -40,7 +40,7 @@ jobs:
         uses: actions/upload-release-asset@v1
 
         ## Disable upload step for local workflow executions using act
-        if: ${{ github.event.release.tag_name != 'act-build' }}
+        if: ${{ github.event.release.tag_name != '0.0.0-act.0' }}
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
