@@ -74,7 +74,7 @@ func (plugin *Plugin) fingerprint(updates chan<- *device.FingerprintResponse) {
 		}
 
 		groups = append(groups, &device.DeviceGroup{
-			Vendor:  "generic",
+			Vendor:  plugin.DefaultVendor,
 			Type:    "cdrom",
 			Name:    "read_write",
 			Devices: []*device.Device{{ID: dev.ID, Healthy: true}},
@@ -89,7 +89,7 @@ func (plugin *Plugin) fingerprint(updates chan<- *device.FingerprintResponse) {
 		// Create a read-only group that offers multiple devices if configured
 		if plugin.ReadonlySeats > 0 {
 			group := &device.DeviceGroup{
-				Vendor: "generic",
+				Vendor: plugin.DefaultVendor,
 				Type:   "cdrom",
 				Name:   "readonly",
 				Attributes: map[string]*structs.Attribute{

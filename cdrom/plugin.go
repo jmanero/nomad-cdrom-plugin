@@ -27,15 +27,19 @@ var (
 	ConfigSpec = hclspec.NewObject(map[string]*hclspec.Spec{
 		"fingerprint_interval": hclspec.NewDefault(
 			hclspec.NewAttr("fingerprint_interval", "string", false),
-			hclspec.NewLiteral("\"5m\""),
+			hclspec.NewLiteral(`"5m"`),
 		),
 		"cdrom_info_path": hclspec.NewDefault(
 			hclspec.NewAttr("cdrom_info_path", "string", false),
-			hclspec.NewLiteral("\"/proc/sys/dev/cdrom/info\""),
+			hclspec.NewLiteral(`"/proc/sys/dev/cdrom/info"`),
 		),
 		"readonly_seats": hclspec.NewDefault(
 			hclspec.NewAttr("readonly_seats", "number", false),
 			hclspec.NewLiteral("0"),
+		),
+		"default_vendor": hclspec.NewDefault(
+			hclspec.NewAttr("default_vendor", "string", false),
+			hclspec.NewLiteral(`"generic"`),
 		),
 	})
 )
@@ -45,6 +49,7 @@ type Config struct {
 	FingerprintInterval string `codec:"fingerprint_interval"`
 	InfoPath            string `codec:"cdrom_info_path"`
 	ReadonlySeats       uint8  `codec:"readonly_seats"`
+	DefaultVendor       string `codec:"default_vendor"`
 }
 
 // Device describes an available device/seat
@@ -62,6 +67,7 @@ type Plugin struct {
 	FingerprintInterval time.Duration
 	InfoPath            string
 	ReadonlySeats       uint8
+	DefaultVendor       string
 
 	info  *base.PluginInfoResponse
 	state string
@@ -126,6 +132,7 @@ func (plugin *Plugin) SetConfig(c *base.Config) error {
 	}
 
 	plugin.ReadonlySeats = config.ReadonlySeats
+	plugin.DefaultVendor = config.DefaultVendor
 
 	plugin.Info("plugin configured", "fingerprint_interval", interval, "cdrom_info_path", config.InfoPath, "readonly_seats", config.ReadonlySeats)
 	return nil
