@@ -146,12 +146,9 @@ func (plugin *Plugin) Fingerprint(ctx context.Context) (<-chan *device.Fingerpri
 	return updates, nil
 }
 
-// Stats streams statistics for the detected devices
+// Stats is a NOOP
 func (plugin *Plugin) Stats(ctx context.Context, interval time.Duration) (<-chan *device.StatsResponse, error) {
-	stats := make(chan *device.StatsResponse)
-
-	go plugin.stater(ctx, stats, interval)
-	return stats, nil
+	return make(chan *device.StatsResponse), nil
 }
 
 // Reserve returns information to the task driver on on how to mount the given devices.
