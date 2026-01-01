@@ -2,7 +2,6 @@ package cdrom
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -74,9 +73,9 @@ func (plugin *Plugin) fingerprint(updates chan<- *device.FingerprintResponse) {
 		}
 
 		groups = append(groups, &device.DeviceGroup{
-			Vendor:  plugin.DefaultVendor,
 			Type:    "cdrom",
-			Name:    "read_write",
+			Vendor:  plugin.DefaultVendor,
+			Name:    plugin.DefaultModel,
 			Devices: []*device.Device{{ID: dev.ID, Healthy: true}},
 			Attributes: map[string]*structs.Attribute{
 				"can_write_cdr":  structs.NewBoolAttribute(dev.CanWriteCDR),
@@ -85,31 +84,6 @@ func (plugin *Plugin) fingerprint(updates chan<- *device.FingerprintResponse) {
 				"can_write_dvdr": structs.NewBoolAttribute(dev.CanWriteDVDR),
 			},
 		})
-
-		// Create a read-only group that offers multiple devices if configured
-		if plugin.ReadonlySeats > 0 {
-			group := &device.DeviceGroup{
-				Vendor: plugin.DefaultVendor,
-				Type:   "cdrom",
-				Name:   "readonly",
-				Attributes: map[string]*structs.Attribute{
-					"can_read_dvd": structs.NewBoolAttribute(dev.CanReadDVD),
-				},
-			}
-
-			for i := uint8(0); i < plugin.ReadonlySeats; i++ {
-				id := fmt.Sprintf("%s.%d", dev.ID, i)
-
-				plugin.cache[id] = Device{
-					ID:   id,
-					Path: filepath.Join("/dev", dev.ID),
-					Perm: "ro",
-				}
-				group.Devices = append(group.Devices, &device.Device{ID: id, Healthy: true})
-			}
-
-			groups = append(groups, group)
-		}
 	}
 
 	updates <- &device.FingerprintResponse{Devices: groups}
